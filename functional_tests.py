@@ -1,10 +1,8 @@
-'''Functional Tests'''
 import unittest
 from selenium import webdriver
 
 
 class NewVisitorTest(unittest.TestCase):
-    """Test case for new visitor"""
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -13,7 +11,6 @@ class NewVisitorTest(unittest.TestCase):
         self.browser.quit()
 
     def test_can_start_a_list_and_retrieve_it_later(self):
-        """User story #1: Persistent To-Do List"""
 
         # Chi has once again heard about a cool new online to-do app. He goes
         # to check out its home page
@@ -45,6 +42,7 @@ class NewVisitorTest(unittest.TestCase):
         # Satified, he closes his browser and goes back to the game.
 
         self.browser.quit()
+
 
 # Check if this file is executed from the command line
 if __name__ == '__main__':
