@@ -18,7 +18,7 @@ class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         # Selenium browser object we'll use to access the resulting webpage
-        self.browser = webdriver.Firefox()
+        self.browser = webdriver.PhantomJS()
 
     def check_for_row_in_list_table(self, expected_text):
         table = self.browser.find_element_by_id('id-list-table')
