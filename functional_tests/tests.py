@@ -5,13 +5,13 @@ Steps of the user story are enclosed in '''
 
 """
 import time
-import unittest
 
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         # Selenium browser object we'll use to access the resulting webpage
@@ -32,7 +32,7 @@ class NewVisitorTest(unittest.TestCase):
         Chi has once again heard about a cool new online to-do app. He goes
         to check out its home page
         '''
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         '''
         He notices the page title and header mention to-do lists
@@ -85,10 +85,3 @@ class NewVisitorTest(unittest.TestCase):
         # Satified, he closes his browser and goes back to the game.
 
         self.browser.quit()
-
-
-# Check if this file is executed from the command line
-if __name__ == '__main__':
-    # Launches unittest test runner, which finds all test classes and methods
-    # in the file and runs them
-    unittest.main()
