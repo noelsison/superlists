@@ -9,7 +9,7 @@ from lists.models import Item
 from lists.views import HOME_TEMPLATE_PATH
 
 
-class SmokeTest(TestCase):
+class HomePageTest(TestCase):
     def test_home_page_returns_correct_html(self):
         # Get a HttpResponse object from Djangp
         response = self.client.get('/')
@@ -17,11 +17,31 @@ class SmokeTest(TestCase):
         # Check if it's using the expected template
         self.assertTemplateUsed(response, HOME_TEMPLATE_PATH)
 
+    def test_only_saves_item_when_necessary(self):
+        self.client.get('/')
+        self.assertEqual(Item.objects.count(), 0)
+
     def test_can_save_a_POST_request(self):
-        item_text_value = 'A new list item'
-        response = self.client.post('/', data={'item_text': item_text_value})
-        self.assertIn(item_text_value, response.content.decode())
-        self.assertTemplateUsed(response, HOME_TEMPLATE_PATH)
+        self.client.post('/', data={'item_text': 'A new list item'})
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list item')
+
+    def test_redirects_after_POST_request(self):
+        response = self.client.post('/', data={'item_text': 'A new list item'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+    def test_displays_all_list_items(self):
+        Item.objects.create(text='soul0')
+        Item.objects.create(text='1cena')
+
+        response = self.client.get('/')
+
+        self.assertIn('soul0', response.content.decode())
+        self.assertIn('1cena', response.content.decode())
 
 
 class ItemModelTest(TestCase):
