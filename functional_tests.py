@@ -17,6 +17,11 @@ class NewVisitorTest(unittest.TestCase):
         # Selenium browser object we'll use to access the resulting webpage
         self.browser = webdriver.Firefox()
 
+    def check_for_row_in_list_table(self, expected_text):
+        table = self.browser.find_element_by_id('id-list-table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn(expected_text, [row.text for row in rows])
+
     def tearDown(self):
         self.browser.quit()
 
@@ -51,33 +56,25 @@ class NewVisitorTest(unittest.TestCase):
         He types "Reach 2k MMR" into a text box. (Chi's hobby is streaning
         some dotes)
         '''
-        string_list_input = 'Reach 2k MMR'
-        inputbox.send_keys(string_list_input)
+        inputbox.send_keys('Reach 2k MMR')
 
         # When he hits enter, the page updates, and now the page lists:
         # "1. Reach 2k MMR" as an item in a to-do list
         inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
 
-        string_list_output_1 = '1: ' + string_list_input
-        table = self.browser.find_element_by_id('id-list-table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(string_list_output_1, [row.text for row in rows])
+        self.check_for_row_in_list_table('1: Reach 2k MMR')
 
         # There is still a text box inviting him to add another item. He
         # enters: "Stream some dotes" (Chi is a pro)
-        string_list_input = 'Stream some dotes'
-        string_list_output_2 = '2: Stream some dotes'
         inputbox = self.browser.find_element_by_id('id-new-item')
-        inputbox.send_keys(string_list_input)
+        inputbox.send_keys('Stream some dotes')
         inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
 
         # The page updates again, and now shows both items on his list
-        table = self.browser.find_element_by_id('id-list-table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(string_list_output_1, [row.text for row in rows])
-        self.assertIn(string_list_output_2, [row.text for row in rows])
+        self.check_for_row_in_list_table('1: Reach 2k MMR')
+        self.check_for_row_in_list_table('2: Stream some dotes')
 
         # Chi expects the site to remember his list. Given his map awareness,
         # he sees the unique URL that the site generated for him and he assumes
