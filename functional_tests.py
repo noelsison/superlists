@@ -59,26 +59,30 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
 
-        string_list_item = '1: ' + string_list_input
+        string_list_output_1 = '1: ' + string_list_input
         table = self.browser.find_element_by_id('id-list-table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-            any(row.text == string_list_item for row in rows),
-            "New to-do item did not appear in table"
-        )
-        # any(condition for iterable) return true if condition is true for
-        # any item in the iterable
+        self.assertIn(string_list_output_1, [row.text for row in rows])
 
         # There is still a text box inviting him to add another item. He
         # enters: "Stream some dotes" (Chi is a pro)
-        self.fail('Finish the test!')
+        string_list_input = 'Stream some dotes'
+        string_list_output_2 = '2: Stream some dotes'
+        inputbox = self.browser.find_element_by_id('id-new-item')
+        inputbox.send_keys(string_list_input)
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
 
         # The page updates again, and now shows both items on his list
+        table = self.browser.find_element_by_id('id-list-table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertIn(string_list_output_1, [row.text for row in rows])
+        self.assertIn(string_list_output_2, [row.text for row in rows])
 
         # Chi expects the site to remember his list. Given his map awareness,
         # he sees the unique URL that the site generated for him and he assumes
         # that his expectation is met.
-
+        self.fail('Finish the test!')
         # He visits that URL. His to do list shows up.
 
         # Satified, he closes his browser and goes back to the game.
