@@ -5,7 +5,8 @@ these tests.py files and run all TestCase along with their test_* functions
 """
 from django.test import TestCase
 
-from .views import HOME_TEMPLATE_PATH
+from lists.models import Item
+from lists.views import HOME_TEMPLATE_PATH
 
 
 class SmokeTest(TestCase):
@@ -21,3 +22,25 @@ class SmokeTest(TestCase):
         response = self.client.post('/', data={'item_text': item_text_value})
         self.assertIn(item_text_value, response.content.decode())
         self.assertTemplateUsed(response, HOME_TEMPLATE_PATH)
+
+
+class ItemModelTest(TestCase):
+    def test_saving_and_retrieving_items(self):
+        first_item_text = 'The first list item this world has ever seen'
+        second_item_text = 'Second item to represent our two superstars'
+
+        first_item = Item()
+        first_item.text = first_item_text
+        first_item.save()
+
+        second_item = Item()
+        second_item.text = second_item_text
+        second_item.save()
+
+        saved_items = Item.objects.all()
+        self.assertEqual(saved_items.count(), 2)
+
+        first_saved_item = saved_items[0]
+        second_saved_item = saved_items[1]
+        self.assertEqual(first_saved_item.text, first_item_text)
+        self.assertEqual(second_saved_item.text, second_item_text)
