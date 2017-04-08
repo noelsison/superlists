@@ -18,5 +18,7 @@ from django.conf.urls import url
 from lists import views
 
 urlpatterns = [
-    url(r'^$', views.home_page, name='home')
+    url(r'^$', views.home_page, name='home'),
+    url(r'^lists/best-list-the-world-has-ever-seen/$',
+        views.view_list, name='view_list'),
 ]

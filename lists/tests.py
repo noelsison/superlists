@@ -6,7 +6,7 @@ these tests.py files and run all TestCase along with their test_* functions
 from django.test import TestCase
 
 from lists.models import Item
-from lists.views import HOME_TEMPLATE_PATH
+from lists.views import HOME_TEMPLATE_PATH, LIST_TEMPLATE_PATH
 
 
 class HomePageTest(TestCase):
@@ -32,16 +32,8 @@ class HomePageTest(TestCase):
         response = self.client.post('/', data={'item_text': 'A new list item'})
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
-
-    def test_displays_all_list_items(self):
-        Item.objects.create(text='soul0')
-        Item.objects.create(text='1cena')
-
-        response = self.client.get('/')
-
-        self.assertIn('soul0', response.content.decode())
-        self.assertIn('1cena', response.content.decode())
+        self.assertEqual(response['location'],
+                         '/lists/best-list-the-world-has-ever-seen/')
 
 
 class ItemModelTest(TestCase):
@@ -64,3 +56,21 @@ class ItemModelTest(TestCase):
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, first_item_text)
         self.assertEqual(second_saved_item.text, second_item_text)
+
+
+class ListViewTest(TestCase):
+    def test_displays_all_items(self):
+        first_item_text = 'The first list item this world has ever seen'
+        second_item_text = 'Second item to represent our two superstars'
+
+        Item.objects.create(text=first_item_text)
+        Item.objects.create(text=second_item_text)
+
+        response = self.client.get('/lists/best-list-the-world-has-ever-seen/')
+
+        self.assertContains(response, first_item_text)
+        self.assertContains(response, second_item_text)
+
+    def test_uses_list_template(self):
+        response = self.client.get('/lists/best-list-the-world-has-ever-seen/')
+        self.assertTemplateUsed(response, LIST_TEMPLATE_PATH)
