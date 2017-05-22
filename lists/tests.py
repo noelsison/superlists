@@ -29,8 +29,9 @@ class NewListTest(TestCase):
     def test_redirects_after_POST_request(self):
         response = self.client.post(
             '/lists/new', data={'item_text': 'A new list item'})
+        new_list = List.objects.first()
         self.assertRedirects(
-            response, '/lists/best-list-the-world-has-ever-seen/')
+            response, f'/lists/{new_list.id}/')
 
 
 class ListAndItemModelTest(TestCase):
@@ -66,19 +67,70 @@ class ListAndItemModelTest(TestCase):
 
 
 class ListViewTest(TestCase):
-    def test_displays_all_items(self):
+    def test_displays_all_items_for_that_list(self):
         first_item_text = 'The first list item this world has ever seen'
         second_item_text = 'Second item to represent our two superstars'
+        third_item_text = '3k MMR forever'
+        fourth_item_text = '4k the dream'
 
-        list_ = List.objects.create()
-        Item.objects.create(text=first_item_text, list=list_)
-        Item.objects.create(text=second_item_text, list=list_)
+        list_first = List.objects.create()
+        Item.objects.create(text=first_item_text, list=list_first)
+        Item.objects.create(text=second_item_text, list=list_first)
 
-        response = self.client.get('/lists/best-list-the-world-has-ever-seen/')
+        list_second = List.objects.create()
+        Item.objects.create(text=third_item_text, list=list_second)
+        Item.objects.create(text=fourth_item_text, list=list_second)
+
+        response = self.client.get(f'/lists/{list_first.id}/')
 
         self.assertContains(response, first_item_text)
         self.assertContains(response, second_item_text)
+        self.assertNotContains(response, third_item_text)
+        self.assertNotContains(response, fourth_item_text)
 
     def test_uses_list_template(self):
-        response = self.client.get('/lists/best-list-the-world-has-ever-seen/')
+        list_ = List.objects.create()
+        response = self.client.get(f'/lists/{list_.id}/')
         self.assertTemplateUsed(response, LIST_TEMPLATE_PATH)
+
+
+class NewItemTest(TestCase):
+
+    def test_can_save_a_POST_request_on_an_existing_list(self):
+        new_item_text = 'Here comes a new challenger!'
+
+        other_list = List.objects.create()  # pylint: disable=unused-variable
+        # other_list tests for List.objects.first() hacks
+        latest_list = List.objects.create()
+
+        self.client.post(
+            f'/lists/{latest_list.id}/add_item',
+            data={'item_text': new_item_text}
+        )
+
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, new_item_text)
+        self.assertEqual(new_item.list, latest_list)
+
+    def test_redirects_to_list_view(self):
+        new_item_text = 'Here comes a new challenger!'
+
+        other_list = List.objects.create()  # pylint: disable=unused-variable
+        # other_list tests for List.objects.first() hacks
+        latest_list = List.objects.create()
+
+        response = self.client.post(
+            f'/lists/{latest_list.id}/add_item',
+            data={'item_text': new_item_text}
+        )
+
+        self.assertRedirects(response, f'/lists/{latest_list.id}/')
+
+    def test_passes_correct_list_to_template(self):
+        other_list = List.objects.create()  # pylint: disable=unused-variable
+        # other_list tests for List.objects.first() hacks
+        latest_list = List.objects.create()
+
+        response = self.client.get(f'/lists/{latest_list.id}/')
+        self.assertEqual(response.context['list'], latest_list)
