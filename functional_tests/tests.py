@@ -160,3 +160,36 @@ class NewVisitorTest(LiveServerTestCase):
         '''
         Satisfied, they both go back to work
         '''
+
+    def test_layout_and_styling(self):
+        '''
+        Chi goes to the home page
+        '''
+        self.browser.get(self.live_server_url)
+
+        browser_width = 1024
+        browser_height = 748
+        self.browser.set_window_size(browser_width, browser_height)
+
+        '''
+        He notices that the input box is nicely centered
+        '''
+        input_box = self.browser.find_element_by_id('id-new-item')
+        self.assertAlmostEqual(
+            input_box.location['x'] + input_box.size['width'] / 2,
+            browser_width / 2,
+            delta=10
+        )
+
+        '''
+        He starts a new list and sees the input box is still centered
+        '''
+        input_box.send_keys('testing')
+        input_box.send_keys(Keys.ENTER)
+        self.wait_for_row_in_list_table('1. testing')
+        input_box = self.browser.find_element_by_id('id-new-item')
+        self.assertAlmostEqual(
+            input_box.location['x'] + input_box.size['width'] / 2,
+            browser_width / 2,
+            delta=10
+        )
