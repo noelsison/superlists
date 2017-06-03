@@ -6,7 +6,7 @@ Steps of the user story are enclosed in '''
 """
 import time
 
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
@@ -14,7 +14,7 @@ from selenium.webdriver.common.keys import Keys
 MAX_WAIT = 10
 
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
 
     def setUp(self):
         # Selenium browser object we'll use to access the resulting webpage
@@ -186,7 +186,7 @@ class NewVisitorTest(LiveServerTestCase):
         '''
         input_box.send_keys('testing')
         input_box.send_keys(Keys.ENTER)
-        self.wait_for_row_in_list_table('1. testing')
+        self.wait_for_row_in_list_table('1: testing')
         input_box = self.browser.find_element_by_id('id-new-item')
         self.assertAlmostEqual(
             input_box.location['x'] + input_box.size['width'] / 2,
